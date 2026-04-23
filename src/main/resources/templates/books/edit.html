@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+      lang="en">
+<head th:replace="~{fragments/layout :: head(#{book.form.edit} + ' — ' + ${bookDTO.name})}"></head>
+
+<body>
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div th:replace="~{fragments/layout :: pageHeader(#{book.form.edit}, ${bookDTO.name}, #{nav.manageBooks})}"></div>
+
+<div class="page-wrapper">
+    <div class="container" style="padding-bottom:4rem;">
+        <div class="book-detail">
+
+            <!-- Left: live preview -->
+            <div>
+                <div class="book-detail-cover" id="previewCover">
+                    <div style="font-size:2.5rem; margin-bottom:1rem; opacity:0.3;">📖</div>
+                    <div id="previewTitle"
+                         style="font-family:var(--font-display); font-size:1.3rem; font-weight:700; color:var(--ink); text-align:center; line-height:1.3; margin-bottom:0.75rem;"
+                         th:text="${bookDTO.name}">Book Title</div>
+                    <div id="previewAuthor"
+                         style="font-size:0.85rem; color:var(--muted); font-style:italic;"
+                         th:text="${bookDTO.author}">Author</div>
+                </div>
+
+                <!-- Price preview -->
+                <div style="background:white; border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.5rem; margin-top:1.5rem; border-top:3px solid var(--gold);">
+                    <div style="font-size:0.75rem; font-weight:500; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:0.4rem;"
+                         th:text="#{book.preview.price}">Price</div>
+                    <div id="previewPrice"
+                         style="font-family:var(--font-display); font-size:2rem; font-weight:700; color:var(--accent);"
+                         th:text="'$' + ${bookDTO.price}">$0.00</div>
+
+                    <div class="divider"></div>
+
+                    <div style="font-size:0.78rem; color:var(--muted); text-align:center;" th:text="#{book.preview.note}">
+                        Preview updates as you type
+                    </div>
+                </div>
+
+                <!-- Cancel / back -->
+                <a th:href="@{/books/{name}(name=${bookDTO.name})}"
+                   class="btn btn-outline"
+                   style="width:100%; text-align:center; margin-top:1rem;"
+                   th:text="#{btn.cancel}">Cancel</a>
+            </div>
+
+            <!-- Right: edit form -->
+            <div>
+                <div style="display:flex; justify-content:space-between; align-items:center;
+                    margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                    <h2 th:text="#{book.form.edit}">Edit Book</h2>
+                </div>
+
+                <form th:action="@{/books/edit/{name}(name=${bookDTO.name})}"
+                      th:object="${bookDTO}"
+                      method="post">
+
+                    <div class="form-row">
+                        <!-- Author -->
+                        <div class="form-group">
+                            <label for="author" th:text="#{book.field.author}">Author</label>
+                            <input type="text" id="author" th:field="*{author}"
+                                   class="form-control"
+                                   th:classappend="${#fields.hasErrors('author')} ? 'is-invalid'"
+                                   th:placeholder="#{book.field.author.ph}"
+                                   required />
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('author')}" th:errors="*{author}"></div>
+                        </div>
+
+                        <!-- Price -->
+                        <div class="form-group">
+                            <label for="price" th:text="#{book.field.price}">Price</label>
+                            <input type="number" id="price" th:field="*{price}"
+                                   class="form-control"
+                                   th:classappend="${#fields.hasErrors('price')} ? 'is-invalid'"
+                                   step="0.01" min="0"
+                                   placeholder="0.00"
+                                   required />
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <!-- Genre -->
+                        <div class="form-group">
+                            <label for="genre" th:text="#{book.field.genre}">Genre</label>
+                            <input type="text" id="genre" th:field="*{genre}"
+                                   class="form-control"
+                                   th:placeholder="#{book.field.genre.ph}" />
+                        </div>
+
+                        <!-- Age group -->
+                        <div class="form-group">
+                            <label for="ageGroup" th:text="#{book.field.ageGroup}">Age Group</label>
+                            <select id="ageGroup" th:field="*{ageGroup}" class="form-control">
+                                <option value="" th:text="#{book.field.ageGroup.select}">Select…</option>
+                                <option th:each="ag : ${T(com.epam.rd.autocode.spring.project.model.enums.AgeGroup).values()}"
+                                        th:value="${ag}"
+                                        th:text="#{book.field.ageGroup.__${ag.name().toLowerCase()}__}"
+                                        th:selected="${ag == bookDTO.ageGroup}">
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <!-- Language -->
+                        <div class="form-group">
+                            <label for="language" th:text="#{book.field.language}">Language</label>
+                            <select id="language" th:field="*{language}" class="form-control">
+                                <option value="" th:text="#{book.field.language.select}">Select…</option>
+                                <option th:each="lang : ${T(com.epam.rd.autocode.spring.project.model.enums.Language).values()}"
+                                        th:value="${lang}"
+                                        th:text="#{book.field.language.__${lang.name().toLowerCase()}__}"
+                                        th:selected="${lang == bookDTO.language}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Pages -->
+                        <div class="form-group">
+                            <label for="pages" th:text="#{book.field.pages}">Pages</label>
+                            <input type="number" id="pages" th:field="*{pages}"
+                                   class="form-control"
+                                   min="1" placeholder="e.g. 320" />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <!-- Publication date -->
+                        <div class="form-group">
+                            <label for="publicationDate" th:text="#{book.field.publicationDate}">Publication Date</label>
+                            <input type="date" id="publicationDate" th:field="*{publicationDate}"
+                                   class="form-control"
+                                   th:attr="max=${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" />
+                        </div>
+
+                        <!-- Characteristics -->
+                        <div class="form-group">
+                            <label for="characteristics" th:text="#{book.field.characteristics}">Characteristics</label>
+                            <input type="text" id="characteristics" th:field="*{characteristics}" maxlength="500"
+                                   class="form-control"
+                                   th:placeholder="#{book.field.characteristics.ph}" />
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group">
+                        <label for="description" th:text="#{book.field.description}">Description</label>
+                        <textarea id="description" th:field="*{description}" maxlength="5000"
+                                  class="form-control" rows="5"
+                                  th:placeholder="#{book.field.description.ph}"></textarea>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div style="display:flex; justify-content:flex-end; gap:0.75rem;">
+                        <a th:href="@{/books/{name}(name=${bookDTO.name})}"
+                           class="btn btn-outline" th:text="#{btn.cancel}">Cancel</a>
+                        <button type="submit" class="btn btn-primary" th:text="#{btn.save}">Save Changes</button>
+                    </div>
+
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    // Live preview: update cover title, author and price as the user types
+    function wire(inputId, targetId, transform) {
+        var input  = document.getElementById(inputId);
+        var target = document.getElementById(targetId);
+        if (!input || !target) return;
+        input.addEventListener('input', function () {
+            target.textContent = transform ? transform(this.value) : (this.value || '—');
+        });
+    }
+
+    wire('name',   'previewTitle');
+    wire('author', 'previewAuthor');
+    wire('price',  'previewPrice', function (v) {
+        var n = parseFloat(v);
+        return isNaN(n) ? '$—' : '$' + n.toFixed(2);
+    });
+</script>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>

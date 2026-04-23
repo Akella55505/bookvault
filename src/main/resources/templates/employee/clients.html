@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+      lang="en">
+<head th:replace="~{fragments/layout :: head(#{employee.clients.title})}"></head>
+
+<body>
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div th:replace="~{fragments/layout :: pageHeader(#{employee.clients.heading}, #{employee.clients.sub}, #{nav.clients})}"></div>
+
+<div class="page-wrapper">
+    <div class="container" style="padding-bottom:4rem;">
+
+        <!-- Stats -->
+        <div class="stats-grid" th:if="${stats != null}">
+            <div class="stat-card">
+                <div class="stat-label" th:text="#{employee.stat.totalClients}">Total Clients</div>
+                <div class="stat-value" th:text="${stats.total ?: 0}">128</div>
+            </div>
+            <div class="stat-card" style="border-top-color:var(--danger);">
+                <div class="stat-label" th:text="#{employee.stat.blocked}">Blocked</div>
+                <div class="stat-value" th:text="${stats.blocked ?: 0}">8</div>
+            </div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <form th:action="@{/employee/clients}" method="get" class="search-bar">
+                <input type="text" name="search"
+                       th:value="${queryFilter.search}"
+                       th:placeholder="#{employee.clients.search.ph}"
+                       placeholder="Search by name or email…" />
+                <input type="hidden" name="itemsPerPage" th:value="${queryFilter.itemsPerPage}" />
+                <input type="hidden" name="sortBy" th:value="${queryFilter.sortBy}" />
+                <input type="hidden" name="sortDirection" th:value="${queryFilter.sortDirection}" />
+                <button type="submit">🔍</button>
+            </form>
+
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+                <form th:action="@{/employee/clients}" method="get" style="display:flex; gap:0.5rem;">
+                    <input type="hidden" name="search" th:value="${queryFilter.search}" />
+
+                    <label for="itemsPerPage" style="margin:0;align-content: center;" th:text="#{employee.clients.sort.perPage}">Clients per page:</label>
+                    <select id="itemsPerPage" name="itemsPerPage" class="form-control" style="width:auto;"
+                            onchange="this.form.submit()">
+                        <option value="5" th:selected="${queryFilter.itemsPerPage == 5}">5</option>
+                        <option value="10" th:selected="${queryFilter.itemsPerPage == 10}">10</option>
+                        <option value="20" th:selected="${queryFilter.itemsPerPage == 20}">20</option>
+                    </select>
+                    <select name="sortBy" class="form-control" style="width:auto;" onchange="this.form.submit()">
+                        <option value="name" th:selected="${queryFilter.sortBy.toString().toLowerCase() == 'name'}" th:text="#{employee.clients.sort.name}">Name</option>
+                        <option value="balance" th:selected="${queryFilter.sortBy.toString().toLowerCase() == 'balance'}" th:text="#{employee.clients.sort.balance}">Balance</option>
+                    </select>
+                    <select name="sortDirection" class="form-control" style="width:auto;"
+                            onchange="this.form.submit()">
+                        <option value="asc"  th:selected="${queryFilter.sortDirection.toString().toLowerCase() == 'asc'}"  th:text="#{sort.asc}">A → Z</option>
+                        <option value="desc" th:selected="${queryFilter.sortDirection.toString().toLowerCase() == 'desc'}" th:text="#{sort.desc}">Z → A</option>
+                    </select>
+                </form>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-wrapper" th:if="${clients != null and !clients.isEmpty()}">
+            <table>
+                <thead>
+                <tr>
+                    <th th:text="#{table.col.name}">Name</th>
+                    <th th:text="#{table.col.email}">Email</th>
+                    <th th:text="#{table.col.balance}">Balance</th>
+                    <th th:text="#{table.col.status}">Status</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="client : ${clients}">
+                    <td>
+                        <div style="display:flex; align-items:center; gap:0.75rem;">
+                            <div style="width:36px; height:36px; border-radius:50%; background:var(--cream); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:700; font-size:0.9rem; color:var(--accent);"
+                                 th:text="${#strings.toUpperCase(#strings.substring(client.name, 0, 1))}">J</div>
+                            <div>
+                                <div style="font-weight:500;" th:text="${client.name}">John Doe</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td th:text="${client.email}">john@example.com</td>
+                    <td th:text="'$' + ${client.balance ?: 0}">$12.03</td>
+                    <td>
+              <span class="status-badge"
+                    th:classappend="${client.active} ? 'status-active' : 'status-blocked'"
+                    th:text="${client.active} ? #{status.active} : #{status.blocked}">Active</span>
+                    </td>
+                    <td>
+                        <form th:action="@{/employee/clients/toggle(email=${client.email})}"
+                              method="post" style="margin:0;">
+                            <input type="hidden" name="queryString" th:value="${queryString}" />
+                            <button type="submit"
+                                    class="btn btn-sm"
+                                    th:classappend="${client.active} ? 'btn-danger' : 'btn-success'"
+                                    th:text="${client.active} ? #{btn.block} : #{btn.unblock}">Block</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Empty -->
+        <div class="empty-state" th:if="${clients == null or clients.isEmpty()}">
+            <div class="empty-icon">👥</div>
+            <h3 th:text="#{employee.clients.empty.title}">No clients found</h3>
+            <p th:text="#{employee.clients.empty.sub}">Try adjusting your search filters.</p>
+        </div>
+
+        <!-- Pagination -->
+        <div th:replace="~{fragments/layout :: pagination(${clients}, '/employee/clients', ${queryFilter})}"></div>
+
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>

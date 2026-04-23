@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+      lang="en">
+<head th:replace="~{fragments/layout :: head(#{basket.title})}"></head>
+
+<body>
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div th:replace="~{fragments/layout :: pageHeader(#{basket.heading}, #{basket.sub}, #{nav.basket})}"></div>
+
+<div class="page-wrapper">
+    <div class="container" style="padding-bottom:4rem;">
+
+        <!-- Non-empty basket -->
+        <div th:if="${basketItems != null and !basketItems.isEmpty()}"
+             style="display:grid; grid-template-columns:1fr 320px; gap:2rem; align-items:start;">
+
+            <!-- Items -->
+            <div>
+                <div class="card">
+                    <div class="card-header" th:text="#{basket.items.heading}">Your Items</div>
+
+                    <div th:if="${errorMessage}" class="alert alert-danger">
+                        <span>✕</span> <span th:text="#{basket.error.notEnoughMoney}">Not enough money</span>
+                    </div>
+
+                    <div th:each="item : ${basketItems}" class="basket-item" th:attr="data-price=${item.price}">
+                        <!-- Mini cover -->
+                        <div class="basket-cover" th:text="${item.name}">Book</div>
+
+                        <!-- Info -->
+                        <div class="basket-info">
+                            <div class="basket-title" th:text="${item.name}">Title</div>
+                            <div class="basket-author" th:text="${item.author}">Author</div>
+                            <div class="basket-price" th:text="'$' + ${item.price}">$19.99</div>
+                        </div>
+
+                        <div class="qty-control">
+                            <button type="button" class="qty-btn" onclick="changeQty(this, -1)">−</button>
+
+                            <input type="number"
+                                   class="qty-input"
+                                   name="quantity"
+                                   value="1"
+                                   min="1"
+                                   max="99"
+                                   inputmode="numeric"
+                                   oninput="validateQty(this)"
+                                   onblur="validateQty(this)"/>
+
+                            <button type="button" class="qty-btn" onclick="changeQty(this, 1)">+</button>
+                        </div>
+
+                        <!-- Remove -->
+                        <form th:action="@{/basket/remove}" method="post" style="margin:0;">
+                            <input type="hidden" name="bookName" th:value="${item.name}" />
+                            <button type="submit" class="btn btn-danger btn-sm" th:text="#{btn.remove}">✕</button>
+                        </form>
+                    </div>
+
+                    <!-- Clear basket -->
+                    <div class="card-footer" style="display:flex; justify-content:flex-end;">
+                        <form th:action="@{/basket/clear}" method="post">
+                            <button type="submit" class="btn btn-outline btn-sm"
+                                    th:onclick="|return confirm('#{basket.clear.confirm}')|"
+                                    th:text="#{basket.clear}">Clear Basket</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div>
+                <div class="order-summary">
+                    <h3 th:text="#{basket.summary.heading}">Order Summary</h3>
+
+                    <div class="summary-row">
+                        <span th:text="#{basket.summary.items}">Items</span>
+                        <span class="js-items-count" th:text="${basketItems.size()}">3</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span th:text="#{basket.summary.total}">Total</span>
+                        <span class="js-total" th:text="'$' + ${total}">$59.97</span>
+                    </div>
+
+                    <div style="margin-top:1.5rem; display:flex; flex-direction:column; gap:0.75rem;">
+                        <form th:action="@{/orders/place}" method="post" id="checkoutForm">
+                            <input type="hidden" name="basketJson" id="basketJson">
+                            <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:0.75rem;"
+                                    th:text="#{basket.placeOrder}">Place Order</button>
+                        </form>
+                        <a th:href="@{/books}" class="btn btn-outline" style="text-align:center; justify-content:center;" th:text="#{basket.continueShopping}">Continue Shopping</a>
+                    </div>
+                </div>
+
+                <div style="margin-top:1rem; padding:1rem; background:var(--cream); border-radius:var(--radius); font-size:0.8rem; color:var(--muted);">
+                    🔒 <span th:text="#{basket.secureNote}">Secure checkout. Your information is protected.</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Empty basket -->
+        <div class="empty-state" th:if="${basketItems == null or basketItems.isEmpty()}">
+            <div class="empty-icon">🛒</div>
+            <h3 th:text="#{basket.empty.title}">Your basket is empty</h3>
+            <p th:text="#{basket.empty.sub}">Browse our catalogue and add some books!</p>
+            <a th:href="@{/books}" class="btn btn-primary mt-3" th:text="#{basket.empty.btn}">Browse Books</a>
+        </div>
+
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>

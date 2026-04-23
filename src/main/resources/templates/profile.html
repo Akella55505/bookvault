@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+      lang="en">
+<head th:replace="~{fragments/layout :: head(#{profile.title})}"></head>
+
+<body>
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div th:replace="~{fragments/layout :: pageHeader(#{profile.heading}, null, #{nav.profile})}"></div>
+
+<div class="page-wrapper">
+    <div class="container" style="padding-bottom:4rem;">
+        <div class="profile-layout">
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="sidebar-avatar">
+                    <div class="avatar-circle"
+                         th:text="${#strings.toUpperCase(#strings.substring(user.name, 0, 1))}">J</div>
+                    <div class="sidebar-name" th:text="${user.name}">John Doe</div>
+                    <div class="sidebar-role" sec:authorize="hasRole('EMPLOYEE')" th:text="#{role.employee}">Employee</div>
+                    <div class="sidebar-role" sec:authorize="hasRole('CLIENT')" th:text="#{role.client}">Client</div>
+                </div>
+
+                <ul class="sidebar-nav">
+                    <li>
+                        <a th:href="@{/profile}" class="active">
+                            <span class="icon">👤</span>
+                            <span th:text="#{profile.nav.info}">Personal Info</span>
+                        </a>
+                    </li>
+                    <li sec:authorize="hasRole('CLIENT')">
+                        <a th:href="@{/client/orders}">
+                            <span class="icon">📦</span>
+                            <span th:text="#{profile.nav.orders}">My Orders</span>
+                        </a>
+                    </li>
+                    <li sec:authorize="hasRole('CLIENT')">
+                        <a th:href="@{/client/basket}">
+                            <span class="icon">🛒</span>
+                            <span th:text="#{profile.nav.basket}">Basket</span>
+                        </a>
+                    </li>
+                    <li sec:authorize="hasRole('EMPLOYEE')">
+                        <a th:href="@{/employee/orders}">
+                            <span class="icon">📋</span>
+                            <span th:text="#{profile.nav.manageOrders}">Manage Orders</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/profile/change-password}">
+                            <span class="icon">🔒</span>
+                            <span th:text="#{profile.nav.password}">Change Password</span>
+                        </a>
+                    </li>
+                    <li sec:authorize="hasRole('CLIENT')">
+                        <a th:href="@{/client/delete}"
+                           style="color:var(--danger);"
+                           th:onclick="|return confirm('#{profile.delete.confirm}')|">
+                            <span class="icon">🗑️</span>
+                            <span th:text="#{profile.nav.delete}">Delete Account</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Main content -->
+            <div>
+                <!-- Profile form -->
+                <div class="card mb-3">
+                    <div class="card-header" th:text="#{profile.info.heading}">Personal Information</div>
+                    <div class="card-body">
+
+                        <form th:action="@{/profile/update}" th:object="${userDTO}" method="post" id="profileForm">
+
+                            <div class="form-group">
+                                <label for="name" th:text="#{auth.field.name}">Name</label>
+                                <input type="text" id="name" th:field="*{name}" class="form-control" />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email" th:text="#{auth.field.email}">Email Address</label>
+                                <input type="email" id="email" th:field="*{email}" class="form-control" />
+                            </div>
+
+                            <div style="display:flex; justify-content:flex-end; gap:0.75rem;">
+                                <button type="submit" class="btn btn-primary" id="submitBtn" th:text="#{btn.save}" disabled>
+                                    Save Changes
+                                </button>
+                            </div>
+
+                        </form>
+
+                    </div>
+                </div>
+
+                <!-- Stats card for client -->
+                <div class="stats-grid" sec:authorize="hasRole('CLIENT')" th:if="${stats != null}">
+                    <div class="stat-card">
+                        <div class="stat-label" th:text="#{profile.stat.orders}">Total Orders</div>
+                        <div class="stat-value" th:text="${stats.totalOrders ?: 0}">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label" th:text="#{profile.stat.books}">Books Ordered</div>
+                        <div class="stat-value" th:text="${stats.totalBooks ?: 0}">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label" th:text="#{profile.stat.spent}">Total Spent</div>
+                        <div class="stat-value" th:text="'$' + ${stats.totalSpent ?: '0.00'}">$0</div>
+                    </div>
+                </div>
+
+                <!-- Account info (read-only) -->
+                <div class="card">
+                    <div class="card-header" th:text="#{profile.account.heading}">Account Details</div>
+                    <div class="card-body">
+                        <ul class="meta-list">
+                            <li>
+                                <span class="meta-key" th:text="#{profile.field.email}">Email</span>
+                                <span th:text="${user.email}" style="align-content: center">user@example.com</span>
+                            </li>
+                            <li sec:authorize="hasRole('CLIENT')">
+                                <span class="meta-key" th:text="#{profile.field.balance}" style="align-content: center">Balance</span>
+                                <div style="display:flex; align-items:center; gap:0.75rem;">
+                                    <span th:text="'$' + ${user.balance}">100.15</span>
+
+                                    <form th:action="@{/client/balance/deposit}" method="post"
+                                          style="display:flex; align-items:center; gap:0.5rem; margin:0;">
+                                        <input type="number"
+                                               name="deposit"
+                                               step="0.01"
+                                               min="0.01"
+                                               th:placeholder="#{balance.deposit.amount}"
+                                               class="form-control"
+                                               style="width:120px;" />
+
+                                        <button type="submit" class="btn btn-primary" th:text="#{balance.deposit}">
+                                            Deposit
+                                        </button>
+                                    </form>
+                                </div>
+                            </li>
+                            <li sec:authorize="hasRole('EMPLOYEE')">
+                                <span class="meta-key" th:text="#{profile.field.phone}">Phone number</span>
+                                <span th:text="${user.phone}" style="align-content: center">+38(099)-111-12-34</span>
+                            </li>
+                            <li sec:authorize="hasRole('EMPLOYEE')">
+                                <span class="meta-key" th:text="#{profile.field.birthDate}">Birth date</span>
+                                <span th:text="${user.birthDate}" style="align-content: center">2025-11-12</span>
+                            </li>
+                            <li sec:authorize="hasRole('CLIENT')">
+                                <span class="meta-key" th:text="#{profile.field.status}">Status</span>
+                                <span class="status-badge"
+                                      th:classappend="${user.active} ? 'status-active' : 'status-blocked'"
+                                      th:text="${user.active} ? #{status.active} : #{status.blocked}">Active</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>

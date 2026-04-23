@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+      lang="en">
+<head th:replace="~{fragments/layout :: head(#{book.form.title})}"></head>
+
+<body>
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div th:replace="~{fragments/layout :: pageHeader(
+  ${bookDTO.name != null and !bookDTO.name.isEmpty()} ? #{book.form.edit} : #{book.form.add},
+  null,
+  #{nav.catalogue}
+)}"></div>
+
+<div class="page-wrapper">
+    <div class="container" style="padding-bottom:4rem; max-width:720px;">
+
+        <div class="card">
+            <div class="card-header">
+                <span th:text="${bookDTO.name != null and !bookDTO.name.isEmpty()} ? #{book.form.edit} : #{book.form.add}">Add Book</span>
+            </div>
+            <div class="card-body">
+
+                <form th:action="${bookDTO.name != null and !bookDTO.name.isEmpty()}
+                            ? @{/employee/books/edit/{name}(name=${bookDTO.name})}
+                            : @{/employee/books/add}"
+                      th:object="${bookDTO}"
+                      method="post">
+
+                    <div class="form-row">
+                        <!-- Name -->
+                        <div class="form-group">
+                            <label th:for="name" th:text="#{book.field.name}">Book Title *</label>
+                            <input type="text" id="name" th:field="*{name}"
+                                   class="form-control"
+                                   th:classappend="${#fields.hasErrors('name')} ? 'is-invalid'"
+                                   th:placeholder="#{book.field.name.ph}"
+                                   placeholder="Enter book title" required />
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}"
+                                 th:errors="*{name}">Title error</div>
+                        </div>
+
+                        <!-- Author -->
+                        <div class="form-group">
+                            <label th:for="author" th:text="#{book.field.author}">Author *</label>
+                            <input type="text" id="author" th:field="*{author}"
+                                   class="form-control"
+                                   th:classappend="${#fields.hasErrors('author')} ? 'is-invalid'"
+                                   th:placeholder="#{book.field.author.ph}"
+                                   placeholder="Author name" required />
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('author')}"
+                                 th:errors="*{author}">Author error</div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <!-- Price -->
+                        <div class="form-group">
+                            <label th:for="price" th:text="#{book.field.price}">Price *</label>
+                            <input type="number" id="price" th:field="*{price}"
+                                   class="form-control"
+                                   th:classappend="${#fields.hasErrors('price')} ? 'is-invalid'"
+                                   step="0.01" min="0"
+                                   placeholder="0.00" required />
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('price')}"
+                                 th:errors="*{price}">Price error</div>
+                        </div>
+
+                        <!-- Genre -->
+                        <div class="form-group">
+                            <label th:for="genre" th:text="#{book.field.genre}">Genre</label>
+                            <select id="genre" th:field="*{genre}" class="form-control">
+                                <option value="" th:text="#{book.field.genre.select}">Select genre…</option>
+                                <option value="Fiction">Fiction</option>
+                                <option value="Non-Fiction">Non-Fiction</option>
+                                <option value="Science">Science</option>
+                                <option value="History">History</option>
+                                <option value="Biography">Biography</option>
+                                <option value="Fantasy">Fantasy</option>
+                                <option value="Mystery">Mystery</option>
+                                <option value="Romance">Romance</option>
+                                <option value="Self-Help">Self-Help</option>
+                                <option value="Technology">Technology</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <!-- Publisher -->
+                        <div class="form-group">
+                            <label th:for="publisher" th:text="#{book.field.publisher}">Publisher</label>
+                            <input type="text" id="publisher" th:field="*{publisher}"
+                                   class="form-control"
+                                   th:placeholder="#{book.field.publisher.ph}"
+                                   placeholder="Publisher name" />
+                        </div>
+
+                        <!-- ISBN -->
+                        <div class="form-group">
+                            <label th:for="isbn" th:text="#{book.field.isbn}">ISBN</label>
+                            <input type="text" id="isbn" th:field="*{isbn}"
+                                   class="form-control"
+                                   th:classappend="${#fields.hasErrors('isbn')} ? 'is-invalid'"
+                                   placeholder="978-x-xxx-xxxxx-x" />
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('isbn')}"
+                                 th:errors="*{isbn}">ISBN error</div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <!-- Pages -->
+                        <div class="form-group">
+                            <label th:for="pages" th:text="#{book.field.pages}">Pages</label>
+                            <input type="number" id="pages" th:field="*{pages}"
+                                   class="form-control" min="1" placeholder="e.g. 320" />
+                        </div>
+
+                        <!-- Language -->
+                        <div class="form-group">
+                            <label th:for="language" th:text="#{book.field.language}">Language</label>
+                            <select id="language" th:field="*{language}" class="form-control">
+                                <option value="English">English</option>
+                                <option value="Ukrainian">Ukrainian</option>
+                                <option value="German">German</option>
+                                <option value="French">French</option>
+                                <option value="Spanish">Spanish</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Available -->
+                    <div class="form-group">
+                        <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; text-transform:none; letter-spacing:0;">
+                            <input type="checkbox" th:field="*{available}"
+                                   style="width:16px; height:16px; accent-color:var(--accent);" />
+                            <span th:text="#{book.field.available}">Available for purchase</span>
+                        </label>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group">
+                        <label th:for="description" th:text="#{book.field.description}">Description</label>
+                        <textarea id="description" th:field="*{description}"
+                                  class="form-control" rows="4"
+                                  th:placeholder="#{book.field.description.ph}"
+                                  placeholder="Enter a book description…"></textarea>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="divider"></div>
+                    <div style="display:flex; justify-content:flex-end; gap:0.75rem;">
+                        <a th:href="@{/books}" class="btn btn-outline" th:text="#{btn.cancel}">Cancel</a>
+                        <button type="submit" class="btn btn-primary"
+                                th:text="${bookDTO.name != null and !bookDTO.name.isEmpty()} ? #{btn.save} : #{btn.add}">
+                            Add Book
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>

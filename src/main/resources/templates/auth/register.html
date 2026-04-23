@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head(#{auth.register.title})}"></head>
+
+<body style="margin:0;">
+<div class="auth-page">
+
+    <!-- Left panel -->
+    <div class="auth-panel-left">
+        <div class="logo">BookVault</div>
+        <div class="tagline" th:text="#{auth.register.tagline}">"Not all those who wander are lost."</div>
+        <div class="sub" th:text="#{auth.register.tagline.author}">— J.R.R. Tolkien</div>
+
+        <div style="margin-top:3rem;">
+            <div style="background:rgba(201,168,76,0.1); border:1px solid rgba(201,168,76,0.2); border-radius:var(--radius-lg); padding:1.5rem;">
+                <div style="color:var(--gold); font-family:var(--font-display); font-size:1.1rem; margin-bottom:0.75rem;" th:text="#{auth.register.perks.title}">Member Benefits</div>
+                <ul style="list-style:none; display:flex; flex-direction:column; gap:0.6rem;">
+                    <li style="color:var(--muted); font-size:0.85rem;">
+                        <span style="color:var(--gold);">→</span>
+                        <span th:text="#{auth.register.perk1}"> Personal reading basket</span>
+                    </li>
+                    <li style="color:var(--muted); font-size:0.85rem;">
+                        <span style="color:var(--gold);">→</span>
+                        <span th:text="#{auth.register.perk2}"> Order history & tracking</span>
+                    </li>
+                    <li style="color:var(--muted); font-size:0.85rem;">
+                        <span style="color:var(--gold);">→</span>
+                        <span th:text="#{auth.register.perk3}"> Exclusive member offers</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: Registration form -->
+    <div class="auth-panel-right">
+        <div class="auth-box" style="max-width:460px;">
+
+            <h2 th:text="#{auth.register.heading}">Create Account</h2>
+            <p class="auth-sub" th:text="#{auth.register.sub}">Join BookVault today — it's free</p>
+
+            <div th:if="${errorMessage}" class="alert alert-danger">
+                <span>✕</span> <span th:text="${errorMessage}">Registration failed.</span>
+            </div>
+
+            <form th:action="@{/auth/register}" th:object="${clientDTO}" method="post">
+                <input type="hidden" name="returnUrl" th:value="${returnUrl}">
+
+                <div class="form-group">
+                    <label th:for="name" th:text="#{auth.field.name}">Name</label>
+                    <input type="text" id="name" th:field="*{name}"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('name')} ? 'is-invalid'"
+                           th:placeholder="#{auth.field.name.ph}"
+                           placeholder="John" required />
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}"
+                         th:errors="*{name}">First name error</div>
+                </div>
+
+                <div class="form-group">
+                    <label th:for="email" th:text="#{auth.field.email}">Email Address</label>
+                    <input type="email" id="email" th:field="*{email}"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'"
+                           th:placeholder="#{auth.field.email.ph}"
+                           placeholder="you@example.com" required />
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}"
+                         th:errors="*{email}">Email error</div>
+                </div>
+
+                <div class="form-group">
+                    <label th:for="password" th:text="#{auth.field.password}">Password</label>
+                    <input type="password" id="password" th:field="*{password}"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('password')} ? 'is-invalid'"
+                           th:placeholder="#{auth.field.password.ph}"
+                           placeholder="At least 8 characters"
+                           minlength="8" required />
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('password')}"
+                         th:errors="*{password}">Password error</div>
+                    <!-- Strength indicator -->
+                    <div id="strengthBar" style="margin-top:0.5rem; height:4px; border-radius:2px; background:var(--cream); overflow:hidden;">
+                        <div id="strengthFill" style="height:100%; width:0%; background:var(--danger); transition:width 0.3s, background 0.3s;"></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label th:for="confirmPassword" th:text="#{auth.field.confirmPassword}">Confirm Password</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword"
+                           class="form-control"
+                           th:placeholder="#{auth.field.confirmPassword.ph}"
+                           th:data-mismatch-msg="#{auth.field.confirmPassword.mismatch}"
+                           placeholder="Repeat your password"
+                           required />
+                </div>
+
+                <!-- Password requirements hint -->
+                <div style="background:var(--cream); border-radius:var(--radius); padding:1rem; margin-bottom:1.5rem; font-size:0.82rem; color:var(--muted);">
+                    <strong style="color:var(--ink); display:block; margin-bottom:0.4rem;" th:text="#{password.requirements.title}">Password requirements:</strong>
+                    <ul style="list-style:none; display:flex; flex-direction:column; gap:0.25rem;">
+                        <li id="req-length">○ <span th:text="#{password.req.length}">At least 8 characters</span></li>
+                        <li id="req-upper">○ <span th:text="#{password.req.upper}">One uppercase letter</span></li>
+                        <li id="req-digit">○ <span th:text="#{password.req.digit}">One number</span></li>
+                        <li id="req-special">○ <span th:text="#{password.req.special}">One special character</span></li>
+                    </ul>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:0.75rem;"
+                        th:text="#{auth.register.btn}">Create Account</button>
+            </form>
+
+            <div class="divider"></div>
+            <p style="text-align:center; font-size:0.875rem; color:var(--muted);">
+                <span th:text="#{auth.haveAccount}">Already have an account?</span>
+                <a th:href="@{/auth/login(returnUrl=${returnUrl})}" th:text="#{auth.login.link}"> Sign in</a>
+            </p>
+
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const password = document.getElementById("password");
+        const confirm = document.getElementById("confirmPassword");
+        const form = document.querySelector("form");
+
+        const mismatchMsg = confirm.dataset.mismatchMsg;
+
+        function validateMatch() {
+            if (!confirm.value) {
+                confirm.setCustomValidity("");
+                return;
+            }
+
+            if (password.value !== confirm.value) {
+                confirm.setCustomValidity(mismatchMsg);
+            } else {
+                confirm.setCustomValidity("");
+            }
+        }
+
+        password.addEventListener("input", validateMatch);
+        confirm.addEventListener("input", validateMatch);
+
+        form.addEventListener("submit", (e) => {
+            validateMatch();
+            if (!form.checkValidity()) {
+                e.preventDefault();
+                form.reportValidity();
+            }
+        });
+    });
+
+    // Password strength meter
+    const newPw = document.getElementById('password');
+    const fill  = document.getElementById('strengthFill');
+    const reqLen   = document.getElementById('req-length');
+    const reqUpper = document.getElementById('req-upper');
+    const reqDigit = document.getElementById('req-digit');
+    const reqSpecial = document.getElementById('req-special');
+
+    if (newPw) {
+        const reqLabels = {
+            len:     reqLen.querySelector('span').textContent,
+            upper:   reqUpper.querySelector('span').textContent,
+            digit:   reqDigit.querySelector('span').textContent,
+            special: reqSpecial.querySelector('span').textContent,
+        };
+
+        newPw.addEventListener('input', function () {
+            const v = this.value;
+            const hasLen   = v.length >= 8;
+            const hasUpper = /[A-Z]/.test(v);
+            const hasDigit = /\d/.test(v);
+            const hasSpecial = /\W/.test(v);
+            const score = [hasLen, hasUpper, hasDigit, hasSpecial].filter(Boolean).length;
+
+            const colors = ['', 'var(--danger)', 'var(--danger)', 'var(--warning)', 'var(--success)'];
+
+            fill.style.width = (score / 4 * 100) + '%';
+            fill.style.background = colors[score] || 'var(--cream)';
+
+            reqLen.textContent   = (hasLen   ? '✓' : '○') + ' ' + reqLabels.len;
+            reqUpper.textContent = (hasUpper ? '✓' : '○') + ' ' + reqLabels.upper;
+            reqDigit.textContent = (hasDigit ? '✓' : '○') + ' ' + reqLabels.digit;
+            reqSpecial.textContent = (hasSpecial ? '✓' : '○') + ' ' + reqLabels.special;
+
+            [reqLen, reqUpper, reqDigit, reqSpecial].forEach((el, i) => {
+                el.style.color = [hasLen, hasUpper, hasDigit, hasSpecial][i] ? 'var(--success)' : 'var(--muted)';
+            });
+        });
+    }
+</script>
+</body>
+</html>

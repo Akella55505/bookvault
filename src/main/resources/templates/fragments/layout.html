@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
+<!-- ═══════════════════════════════════════════════════════════
+     FRAGMENT: head  — include with th:replace="~{fragments/layout :: head('Page Title')}"
+     ═══════════════════════════════════════════════════════════ -->
+<head th:fragment="head(title)">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${title} + ' | BookVault'">BookVault</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <script type="text/javascript" th:src="@{/js/main.js}"></script>
+    <!-- Inline SVG favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='28' font-size='28'>📚</text></svg>" />
+</head>
+
+<!-- ═══════════════════════════════════════════════════════════
+     FRAGMENT: navbar
+     ═══════════════════════════════════════════════════════════ -->
+<nav th:fragment="navbar" class="navbar">
+    <div class="navbar-inner">
+
+        <!-- Brand -->
+        <a href="/" class="navbar-brand">Book<span>Vault</span></a>
+
+        <!-- Main nav -->
+        <!--/*@thymesVar id="requestUri" type="jakarta.servlet.http.HttpServletRequest"*/-->
+        <ul class="navbar-nav">
+            <li>
+                <a class="nav-link"
+                   th:href="@{/books}"
+                   th:classappend="${requestUri != null and #strings.startsWith(requestUri, '/books')} ? 'active' : ''"
+                   th:text="#{nav.catalogue}">
+                    Catalogue
+                </a>
+            </li>
+
+            <!-- Employee-only links -->
+            <li sec:authorize="hasRole('EMPLOYEE')">
+                <a class="nav-link"
+                   th:href="@{/employee/clients}"
+                   th:classappend="${#strings.startsWith(requestUri, '/employee/clients')} ? 'active' : ''"
+                   th:text="#{nav.clients}">
+                    Clients
+                </a>
+            </li>
+            <li sec:authorize="hasRole('EMPLOYEE')">
+                <a class="nav-link"
+                   th:href="@{/employee/orders}"
+                   th:classappend="${#strings.startsWith(requestUri, '/employee/orders')} ? 'active' : ''"
+                   th:text="#{nav.orders}">
+                    Orders
+                </a>
+            </li>
+
+            <!-- Client-only links -->
+            <li sec:authorize="hasRole('CLIENT')">
+                <a class="nav-link"
+                   th:href="@{/client/basket}"
+                   th:classappend="${#strings.startsWith(requestUri, '/client/basket')} ? 'active' : ''"
+                   th:text="#{nav.basket}">
+                    Basket
+                    <span th:if="${basketCount != null and basketCount > 0}"
+                          style="background:var(--accent);color:white;font-size:0.7rem;border-radius:20px;padding:0.1rem 0.45rem;margin-left:0.25rem;"
+                          th:text="${basketCount}">2</span>
+                </a>
+            </li>
+            <li sec:authorize="hasRole('CLIENT')">
+                <a class="nav-link"
+                   th:href="@{/client/orders}"
+                   th:classappend="${#strings.startsWith(requestUri, '/client/orders')} ? 'active' : ''"
+                   th:text="#{nav.orders}">
+                    My Orders
+                </a>
+            </li>
+        </ul>
+
+        <!-- Right side -->
+        <div class="navbar-right">
+            <!-- Language switcher -->
+            <div style="display:flex;gap:0.25rem;">
+                <a th:href="@{''(lang='en')}" class="btn btn-outline-light btn-sm">EN</a>
+                <a th:href="@{''(lang='ua')}" class="btn btn-outline-light btn-sm">UA</a>
+            </div>
+
+            <!-- Authenticated -->
+            <div sec:authorize="isAuthenticated()" style="display:flex;align-items:center;gap:0.75rem;">
+                <span class="navbar-user">
+                  <span th:text="#{nav.loggedIn}">Logged in as</span> <strong sec:authentication="name">user</strong>
+                </span>
+                <a th:href="@{/profile}" class="btn btn-outline-light btn-sm" th:text="#{nav.profile}">Profile</a>
+                <form th:action="@{/auth/logout}" method="post" style="margin:0;height:stretch;max-height:32.75px;">
+                    <button type="submit" class="btn btn-gold btn-sm" style="height:stretch;" th:text="#{nav.logout}">Logout</button>
+                </form>
+            </div>
+
+            <!-- Anonymous -->
+            <div sec:authorize="isAnonymous()" style="display:flex;gap:0.5rem;">
+                <a th:href="@{/auth/login(returnUrl=${requestUri})}" class="btn btn-outline-light btn-sm" th:text="#{nav.login}">Login</a>
+                <a th:href="@{/auth/register(returnUrl=${requestUri})}" class="btn btn-gold btn-sm" th:text="#{nav.register}">Register</a>
+            </div>
+        </div>
+
+    </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════
+     FRAGMENT: alerts  — flashes success/error session messages
+     ═══════════════════════════════════════════════════════════ -->
+<div th:fragment="alerts" class="container mt-3">
+    <div th:if="${successMessageGlobal}" class="alert alert-success">
+        <span>✓</span>
+        <span th:text="${successMessageGlobal}">Operation successful.</span>
+    </div>
+    <div th:if="${errorMessageGlobal}" class="alert alert-danger">
+        <span>✕</span>
+        <span th:text="${errorMessageGlobal}">An error occurred.</span>
+    </div>
+    <div th:if="${warningMessageGlobal}" class="alert alert-warning">
+        <span>⚠</span>
+        <span th:text="${warningMessageGlobal}">Warning.</span>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     FRAGMENT: footer
+     ═══════════════════════════════════════════════════════════ -->
+<footer th:fragment="footer">
+    <div class="footer-inner">
+        <div class="footer-brand">BookVault</div>
+        <div th:text="'© ' + ${#temporals.year(#temporals.createNow())} + ' BookVault. All rights reserved.'">
+            © 2025 BookVault. All rights reserved.
+        </div>
+        <div style="display:flex;gap:1.5rem;">
+            <a th:href="@{/books}" style="color:var(--muted);" th:text="#{nav.catalogue}">Catalogue</a>
+        </div>
+    </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════════
+     FRAGMENT: pagination
+     ═══════════════════════════════════════════════════════════ -->
+<div th:fragment="pagination(page, baseUrl, filter)" class="pagination" th:if="${page.totalPages > 1}">
+    <ul class="pagination">
+        <li class="page-item" th:classappend="${page.first} ? 'disabled'">
+            <a class="page-link" th:href="${@paginationHelperService.buildUrl(baseUrl, filter, page.number - 1)}">‹</a>
+        </li>
+        <li class="page-item"
+            th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}"
+            th:classappend="${i == page.number} ? 'active'">
+            <a class="page-link"
+               th:href="${@paginationHelperService.buildUrl(baseUrl, filter, i)}"
+               th:text="${i + 1}">1</a>
+        </li>
+        <li class="page-item" th:classappend="${page.last} ? 'disabled'">
+            <a class="page-link" th:href="${@paginationHelperService.buildUrl(baseUrl, filter, page.number + 1)}">›</a>
+        </li>
+    </ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     FRAGMENT: page-header
+     ═══════════════════════════════════════════════════════════ -->
+<div th:fragment="pageHeader(title, subtitle, breadcrumbs)" class="page-header">
+    <div class="container">
+        <div class="breadcrumb" th:if="${breadcrumbs != null}">
+            <a th:href="@{/}" th:text="#{home.name}">Home</a>
+            <span class="sep">›</span>
+            <span th:text="${breadcrumbs}">Section</span>
+        </div>
+        <h1 th:text="${title}">Page Title</h1>
+        <p th:if="${subtitle}" th:text="${subtitle}">Subtitle text here</p>
+    </div>
+</div>
+
+</html>

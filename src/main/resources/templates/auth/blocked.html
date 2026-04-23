@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head(#{blocked.title})}"></head>
+
+<body>
+<div th:replace="~{fragments/layout :: navbar}"></div>
+
+<div style="min-height:70vh; display:flex; align-items:center; justify-content:center; padding:3rem;">
+    <div style="text-align:center; max-width:480px;">
+
+        <h2 style="margin-bottom:0.75rem;" th:text="#{blocked.heading}">Account Temporarily Blocked</h2>
+
+        <p style="color:var(--muted); line-height:1.7; margin-bottom:0.75rem;"
+           th:text="#{blocked.message}">
+            Your account has been temporarily blocked due to too many failed login attempts.
+        </p>
+
+        <div style="display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap;">
+            <a th:href="@{/auth/login}"  class="btn btn-primary" th:text="#{blocked.btn.login}">Back to Sign In</a>
+            <a th:href="@{/auth/forgot-password}" class="btn btn-outline" th:text="#{blocked.btn.reset}">Reset Password</a>
+        </div>
+
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>

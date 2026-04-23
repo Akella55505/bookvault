@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+      lang="en">
+<head th:replace="~{fragments/layout :: head(#{books.title})}"></head>
+
+<body>
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<!-- Page Header -->
+<div th:replace="~{fragments/layout :: pageHeader(#{books.heading}, #{books.subheading}, #{nav.catalogue})}"></div>
+
+<div class="page-wrapper">
+    <div class="container" style="padding-bottom:4rem;">
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <!-- Search -->
+            <form th:action="@{/books}" method="get" class="search-bar">
+                <input type="hidden" name="itemsPerPage" th:value="${queryFilter.itemsPerPage}" />
+                <input type="hidden" name="sortBy" th:value="${queryFilter.sortBy}" />
+                <input type="hidden" name="sortDirection" th:value="${queryFilter.sortDirection}" />
+                <input type="text" name="search" th:value="${queryFilter.search}"
+                       th:placeholder="#{books.search.placeholder}"
+                       placeholder="Search title, author, genre…" />
+                <button type="submit">Search</button>
+            </form>
+
+            <!-- Sort & filter -->
+            <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+                <form th:action="@{/books}" method="get" style="display:flex; gap:0.5rem; align-items:center;">
+                    <input type="hidden" name="search" th:value="${queryFilter.search}" />
+
+                    <label for="itemsPerPage" style="margin:0;" th:text="#{books.sort.perPage}">Books per page:</label>
+                    <select id="itemsPerPage" name="itemsPerPage" class="form-control" style="width:auto;"
+                            onchange="this.form.submit()">
+                        <option value="5" th:selected="${queryFilter.itemsPerPage == 5}">5</option>
+                        <option value="10" th:selected="${queryFilter.itemsPerPage == 10}">10</option>
+                        <option value="20" th:selected="${queryFilter.itemsPerPage == 20}">20</option>
+                    </select>
+                    <select name="sortBy" class="form-control" style="width:auto;"
+                            onchange="this.form.submit()">
+                        <option value="name" th:selected="${queryFilter.sortBy.toString().toLowerCase() == 'name'}"    th:text="#{books.sort.name}">Name</option>
+                        <option value="price" th:selected="${queryFilter.sortBy.toString().toLowerCase() == 'price'}"  th:text="#{books.sort.price}">Price</option>
+                        <option value="author" th:selected="${queryFilter.sortBy.toString().toLowerCase() == 'author'}" th:text="#{books.sort.author}">Author</option>
+                    </select>
+                    <select name="sortDirection" class="form-control" style="width:auto;"
+                            onchange="this.form.submit()">
+                        <option value="asc"  th:selected="${queryFilter.sortDirection.toString().toLowerCase() == 'asc'}"  th:text="#{books.sort.asc}">A → Z</option>
+                        <option value="desc" th:selected="${queryFilter.sortDirection.toString().toLowerCase() == 'desc'}" th:text="#{books.sort.desc}">Z → A</option>
+                    </select>
+                </form>
+
+                <!-- Employee: Add book button -->
+                <a sec:authorize="hasRole('EMPLOYEE')"
+                   th:href="@{/books/add}"
+                   class="btn btn-primary" th:text="#{books.add}">+ Add Book</a>
+            </div>
+        </div>
+
+        <!-- Result count -->
+        <p class="text-muted mb-3" style="font-size:0.85rem;"
+           th:if="${books != null}"
+           th:text="${books.totalElements} + ' ' + #{books.results}">24 books found</p>
+
+        <!-- Grid -->
+        <div class="books-grid" th:if="${books != null and !books.isEmpty()}">
+            <div class="book-card" th:each="book : ${books}">
+
+                <!-- Cover -->
+                <div class="book-cover">
+                    <div class="book-cover-spine"
+                         th:style="'background:linear-gradient(to bottom,var(--accent),#222);'">
+                    </div>
+                    <div class="book-cover-bg">
+                        <div class="book-cover-title" th:text="${book.name}">Title</div>
+                        <div class="book-cover-author" th:text="${book.author}">Author</div>
+                    </div>
+                </div>
+
+                <!-- Info -->
+                <div class="book-info">
+                    <div class="book-title" th:text="${book.name}">Book Title</div>
+                    <div class="book-author" th:text="${book.author}">Author Name</div>
+
+                    <div style="font-size:0.78rem; color:var(--muted); margin-bottom:0.5rem;"
+                         th:if="${book.genre}" th:text="${book.genre}">Genre</div>
+
+                    <div class="book-price" th:text="'$' + ${book.price}">$19.99</div>
+
+                    <!-- Actions -->
+                    <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                        <a class="btn btn-outline btn-sm"
+                           th:href="@{/books/{name}(name=${book.name})}"
+                           th:text="#{book.details}">Details</a>
+
+                        <!-- Client: add to basket -->
+                        <th:block sec:authorize="hasRole('CLIENT')">
+                            <div th:if="${basket != null and basket.contains(book)}"
+                                 class="btn btn-sm"
+                                 style="background:var(--success);color:white;cursor:default;pointer-events:none;">
+                                ✓ <span th:text="#{book.inBasket}">In Basket</span>
+                            </div>
+                            <form th:unless="${basket != null and basket.contains(book)}"
+                                  th:action="@{/basket/add}" method="post" style="margin:0;">
+                                <input type="hidden" name="returnUrl" th:value="${requestUri + (queryString != null ? '?' + queryString : '')}" />
+                                <input type="hidden" name="bookName" th:value="${book.name}" />
+                                <button type="submit"
+                                        class="btn btn-primary btn-sm"
+                                        th:text="#{book.addToBasket}">Add to Basket</button>
+                            </form>
+                        </th:block>
+
+                        <!-- Employee: edit/delete -->
+                        <a sec:authorize="hasRole('EMPLOYEE')"
+                           class="btn btn-outline btn-sm"
+                           th:href="@{/books/edit/{name}(name=${book.name})}"
+                           th:text="#{btn.edit}">Edit</a>
+
+                        <form sec:authorize="hasRole('EMPLOYEE')"
+                              th:action="@{/books/delete/{name}(name=${book.name})}"
+                              method="post" style="margin:0;"
+                              th:onsubmit="|return confirm('#{confirm.delete}')|">
+                            <input type="hidden" name="queryString" th:value="${queryString}" />
+                            <button type="submit" class="btn btn-danger btn-sm" th:text="#{btn.delete}">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty state -->
+        <div class="empty-state" th:if="${books == null or books.isEmpty()}">
+            <div class="empty-icon">🔍</div>
+            <h3 th:text="#{books.empty.title}">No books found</h3>
+            <p th:text="#{books.empty.sub}">Try adjusting your search or browse all titles.</p>
+            <a th:href="@{/books}" class="btn btn-primary mt-3" th:text="#{books.empty.btn}">Clear Search</a>
+        </div>
+
+        <!-- Pagination -->
+        <div th:replace="~{fragments/layout :: pagination(${books}, '/books', ${queryFilter})}"></div>
+
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+      lang="en">
+<head th:replace="~{fragments/layout :: head(#{order.detail.title})}"></head>
+
+<body>
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div th:replace="~{fragments/layout :: pageHeader(
+  #{order.detail.heading} + ' #' + ${order.id},
+  null,
+  #{nav.orders}
+)}"></div>
+
+<div class="page-wrapper">
+    <div class="container" style="padding-bottom:4rem;">
+
+        <div style="display:grid; grid-template-columns:1fr 320px; gap:2rem; align-items:start;">
+
+            <!-- Left: items + timeline -->
+            <div>
+
+                <!-- Order items -->
+                <div class="card mb-3">
+                    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                        <span th:text="#{order.detail.items}">Ordered Items</span>
+                        <span class="status-badge"
+                              th:classappend="${order.employeeEmail != null} ? 'status-confirmed' : 'status-pending'"
+                              th:text="${order.employeeEmail == null ? #messages.msg('order.status.pending') : #messages.msg('order.status.confirmed')}"
+                        >PENDING</span>
+                    </div>
+
+                    <div class="card-body" style="padding:0;">
+                        <div th:each="item : ${order.bookItems}" class="basket-item">
+                            <!-- Mini cover -->
+                            <div class="basket-cover" th:text="${item.bookName}">Book</div>
+
+                            <!-- Info -->
+                            <div class="basket-info">
+                                <div class="basket-title" th:text="${item.bookName}">Book Title</div>
+                            </div>
+
+                            <div style="text-align:right; min-width:120px;">
+                                <div style="font-size:0.85rem; color:var(--muted); margin-top:0.15rem;"
+                                     th:text="#{order.detail.qty} + ': ' + ${item.quantity}">Qty: 2</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer" style="display:flex; justify-content:flex-end; gap:2rem; align-items:baseline;">
+                        <span style="font-size:0.85rem; color:var(--muted);" th:text="#{order.detail.itemCount} + ': ' + ${order.bookItems.size()}">Items: 3</span>
+                        <div style="font-size:0.85rem; color:var(--muted);">
+                            <span th:text="#{order.total}">Total:</span>
+                            <strong style="font-family:var(--font-display); font-size:1rem; color:var(--ink); margin-left:0.5rem;"
+                                    th:text="'$' + ${order.price}">$59.97</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: summary + actions -->
+            <div>
+
+                <!-- Order summary card -->
+                <div class="order-summary mb-3">
+                    <h3 th:text="#{order.detail.summary}">Order Summary</h3>
+
+                    <ul class="meta-list">
+                        <li>
+                            <span class="meta-key" style="width: 60px;" th:text="#{order.field.date}">Date</span>
+                            <span th:text="${#temporals.format(order.orderDate, 'dd.MM.yyyy')}">Jan 1, 2025</span>
+                        </li>
+                        <li>
+                            <span class="meta-key" style="width: 60px;" th:text="#{order.field.status}">Status</span>
+                            <span class="status-badge"
+                                  th:classappend="${order.employeeEmail != null} ? 'status-confirmed' : 'status-pending'"
+                                  th:text="${order.employeeEmail == null ? #messages.msg('order.status.pending') : #messages.msg('order.status.confirmed')}"
+                            >PENDING</span>
+                        </li>
+                        <li>
+                            <span class="meta-key" style="width: 60px;" th:text="#{order.field.email}">Email</span>
+                            <span style="font-size:0.85rem;" th:text="${order.clientEmail}">john@example.com</span>
+                        </li>
+                    </ul>
+
+                    <div class="divider"></div>
+
+                    <div class="summary-row total">
+                        <span th:text="#{basket.summary.total}">Total</span>
+                        <span th:text="'$' + ${order.price}">$59.97</span>
+                    </div>
+                </div>
+
+                <!-- Employee actions -->
+                <div th:if="${order.employeeEmail == null}"
+                     class="card" style="border-top:3px solid var(--accent);">
+                    <div class="card-header" th:text="#{order.detail.actions}">Actions</div>
+                    <div class="card-body" style="display:flex; flex-direction:column; gap:0.75rem;">
+                        <form th:action="@{/orders/confirm(id=${order.id})}" method="post">
+                            <button type="submit" class="btn btn-success" style="width:100%; justify-content:center;"
+                                    th:text="#{btn.confirm}">✓ Confirm Order</button>
+                        </form>
+                        <form th:action="@{/orders/delete(id=${order.id})}" method="post"
+                              th:onsubmit="|return confirm('#{confirm.cancel}')|">
+                            <button type="submit" class="btn btn-danger" style="width:100%; justify-content:center;"
+                                    th:text="#{btn.cancel}">✕ Cancel Order</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Back button -->
+                <div style="margin-top:1rem;">
+                    <a th:href="@{/employee/orders}"
+                       class="btn btn-outline" style="width:100%; text-align:center;"
+                       th:text="#{btn.back}">← Back to Orders</a>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>

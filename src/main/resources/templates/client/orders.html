@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+      lang="en">
+<head th:replace="~{fragments/layout :: head(#{orders.title})}"></head>
+
+<body>
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div th:replace="~{fragments/layout :: pageHeader(#{orders.heading}, #{orders.sub}, #{nav.orders})}"></div>
+
+<div class="page-wrapper">
+    <div class="container" style="padding-bottom:4rem;">
+
+        <!-- Non-empty -->
+        <div th:if="${orders != null and !orders.isEmpty()}">
+
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+                    <form th:action="@{/client/orders}" method="get" style="display:flex; gap:0.5rem; align-items:center;">
+                        <label for="itemsPerPage" style="margin:0;" th:text="#{orders.sort.perPage}">Orders per page:</label>
+                        <select id="itemsPerPage" name="itemsPerPage" class="form-control" style="width:auto;"
+                                onchange="this.form.submit()">
+                            <option value="5" th:selected="${queryFilter.itemsPerPage == 5}">5</option>
+                            <option value="10" th:selected="${queryFilter.itemsPerPage == 10}">10</option>
+                            <option value="20" th:selected="${queryFilter.itemsPerPage == 20}">20</option>
+                        </select>
+                        <select name="sortDirection" class="form-control" style="width:auto;"
+                                onchange="this.form.submit()">
+                            <option value="asc"  th:selected="${queryFilter.sortDirection.toString().toLowerCase() == 'asc'}"  th:text="#{books.sort.asc}">A → Z</option>
+                            <option value="desc" th:selected="${queryFilter.sortDirection.toString().toLowerCase() == 'desc'}" th:text="#{books.sort.desc}">Z → A</option>
+                        </select>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card" th:each="order : ${orders}" style="margin-bottom:1rem;">
+                <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <span style="font-family:var(--font-body); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted);" th:text="#{order.label}">Order</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:1rem;">
+            <span style="font-size:0.8rem; color:var(--muted);"
+                  th:text="${#temporals.format(order.orderDate, 'dd.MM.yyyy')}">Jan 1, 2025</span>
+                        <span class="status-badge"
+                              th:classappend="${order.employeeEmail != null} ? 'status-confirmed' : 'status-pending'"
+                              th:text="${order.employeeEmail != null} ? #{order.status.confirmed} : #{order.status.pending}">PENDING</span>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <!-- Book items in this order -->
+                    <div th:each="item : ${order.bookItems}"
+                         style="display:flex; align-items:center; gap:1rem; padding:0.6rem 0; border-bottom:1px solid var(--cream);">
+                        <div style="width:36px; height:50px; background:var(--cream); border:1px solid var(--border); border-radius:2px; flex-shrink:0;"></div>
+                        <div style="flex:1;">
+                            <div style="font-family:var(--font-display); font-size:0.9rem; font-weight:600;" th:text="${item.bookName}">Book Title</div>
+                        </div>
+                        <div style="font-size:0.85rem; color:var(--muted);" th:text="'× ' + ${item.quantity}">× 2</div>
+                    </div>
+                </div>
+
+                <div class="card-footer" style="display:flex; justify-content:space-between; align-items:center;">
+                    <div style="font-size:0.85rem; color:var(--muted);">
+                        <span th:text="#{order.total}">Total:</span>
+                        <strong style="font-family:var(--font-display); font-size:1rem; color:var(--ink); margin-left:0.5rem;"
+                                th:text="'$' + ${order.price}">$59.97</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div th:replace="~{fragments/layout :: pagination(${orders}, '/client/orders', ${queryFilter})}"></div>
+
+        </div>
+
+        <!-- Empty -->
+        <div class="empty-state" th:if="${orders == null or orders.isEmpty()}">
+            <div class="empty-icon">📦</div>
+            <h3 th:text="#{orders.empty.title}">No orders yet</h3>
+            <p th:text="#{orders.empty.sub}">When you place an order, it will appear here.</p>
+            <a th:href="@{/books}" class="btn btn-primary mt-3" th:text="#{orders.empty.btn}">Start Shopping</a>
+        </div>
+
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>

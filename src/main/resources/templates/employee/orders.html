@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+      lang="en">
+<head th:replace="~{fragments/layout :: head(#{employee.orders.title})}"></head>
+
+<body>
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div th:replace="~{fragments/layout :: pageHeader(#{employee.orders.heading}, #{employee.orders.sub}, #{nav.orders})}"></div>
+
+<div class="page-wrapper">
+    <div class="container" style="padding-bottom:4rem;">
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <form th:action="@{/employee/orders}" method="get" class="search-bar">
+                <input type="text" name="search" th:value="${queryFilter.search}"
+                       th:placeholder="#{employee.orders.search.ph}"
+                       placeholder="Search by customer or order ID…" />
+                <input type="hidden" name="itemsPerPage" th:value="${queryFilter.itemsPerPage}" />
+                <input type="hidden" name="sortDirection" th:value="${queryFilter.sortDirection}" />
+                <input type="hidden" name="confirmed" th:value="${queryFilter.confirmed}" />
+                <button type="submit">🔍</button>
+            </form>
+
+            <form th:action="@{/employee/orders}" method="get" style="display:flex; gap:0.5rem; align-items:center;">
+                <input type="hidden" name="search" th:value="${queryFilter.search}" />
+                <select id="itemsPerPage" name="itemsPerPage" class="form-control" style="width:auto;"
+                        onchange="this.form.submit()">
+                    <option value="5" th:selected="${queryFilter.itemsPerPage == 5}">5</option>
+                    <option value="10" th:selected="${queryFilter.itemsPerPage == 10}">10</option>
+                    <option value="20" th:selected="${queryFilter.itemsPerPage == 20}">20</option>
+                </select>
+                <select name="sortDirection" class="form-control" style="width:auto;"
+                        onchange="this.form.submit()">
+                    <option value="asc"  th:selected="${queryFilter.sortDirection.toString().toLowerCase() == 'asc'}"  th:text="#{books.sort.asc}">A → Z</option>
+                    <option value="desc" th:selected="${queryFilter.sortDirection.toString().toLowerCase() == 'desc'}" th:text="#{books.sort.desc}">Z → A</option>
+                </select>
+                <select name="confirmed" class="form-control" style="width:auto;" onchange="this.form.submit()">
+                    <option value="false"    th:selected="${!queryFilter.confirmed}"    th:text="#{order.status.pending}">Pending</option>
+                    <option value="true"  th:selected="${queryFilter.confirmed}"  th:text="#{order.status.confirmed}">Confirmed</option>
+                </select>
+            </form>
+        </div>
+
+        <!-- Table -->
+        <div class="table-wrapper" th:if="${orders != null and !orders.isEmpty()}">
+            <table>
+                <thead>
+                <tr>
+                    <th th:text="#{table.col.client}">Client</th>
+                    <th th:text="#{table.col.employee}">Employee</th>
+                    <th th:text="#{table.col.items}">Items</th>
+                    <th th:text="#{table.col.total}">Total</th>
+                    <th th:text="#{table.col.date}">Date</th>
+                    <th th:text="#{table.col.status}">Status</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="order : ${orders}">
+                    <td>
+                        <strong style="font-family:var(--font-display);" th:text="${order.clientEmail}">example@mail.com</strong>
+                    </td>
+                    <td>
+                        <strong style="font-family:var(--font-display);" th:text="${order.employeeEmail ?: '—'}">example@mail.com</strong>
+                    </td>
+                    <td th:text="${order.bookItems.size()}">3</td>
+                    <td>
+                        <strong style="font-family:var(--font-display);" th:text="'$' + ${order.price}">$59.97</strong>
+                    </td>
+                    <td style="font-size:0.85rem; color:var(--muted);"
+                        th:text="${#temporals.format(order.orderDate, 'dd.MM.yyyy')}">Jan 1, 2025</td>
+                    <td>
+              <span class="status-badge"
+                    th:classappend="${order.employeeEmail != null} ? 'status-confirmed' : 'status-pending'"
+                    th:text="${order.employeeEmail == null ? #messages.msg('order.status.pending') : #messages.msg('order.status.confirmed')}">PENDING</span>
+                    </td>
+                    <td>
+                        <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+                            <!-- Confirm -->
+                            <form th:if="${order.employeeEmail == null}"
+                                  th:action="@{/orders/confirm(id=${order.id})}"
+                                  method="post" style="margin:0;height:stretch;max-height:32.75px;">
+                                <input type="hidden" name="queryString" th:value="${queryString}" />
+                                <button type="submit" class="btn btn-success btn-sm" style="height:stretch;" th:text="#{btn.confirm}">Confirm</button>
+                            </form>
+
+                            <!-- Cancel -->
+                            <form th:if="${order.employeeEmail == null}"
+                                  th:action="@{/orders/delete(id=${order.id})}"
+                                  method="post" style="margin:0;height:stretch;max-height:32.75px;"
+                                  th:onsubmit="|return confirm('#{confirm.cancel}')|">
+                                <input type="hidden" name="queryString" th:value="${queryString}" />
+                                <button type="submit" class="btn btn-danger btn-sm" style="height:stretch;" th:text="#{btn.cancel}">Cancel</button>
+                            </form>
+
+                            <!-- View -->
+                            <a class="btn btn-outline btn-sm"
+                               th:href="@{/orders/{id}(id=${order.id})}"
+                               th:text="#{btn.view}">View</a>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Empty -->
+        <div class="empty-state" th:if="${orders == null or orders.isEmpty()}">
+            <div class="empty-icon">📋</div>
+            <h3 th:text="#{employee.orders.empty.title}">No orders found</h3>
+            <p th:text="#{employee.orders.empty.sub}">Orders will appear here once customers place them.</p>
+        </div>
+
+        <!-- Pagination -->
+        <div th:replace="~{fragments/layout :: pagination(${orders}, '/employee/orders', ${queryFilter})}"></div>
+
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>

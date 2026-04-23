@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Error')}"></head>
+
+<body>
+<div th:replace="~{fragments/layout :: navbar}"></div>
+
+<div style="min-height:70vh; display:flex; align-items:center; justify-content:center; padding:3rem;">
+    <div style="text-align:center; max-width:480px;">
+
+        <!-- Error code -->
+        <div style="
+      font-family:var(--font-display);
+      font-size:8rem;
+      font-weight:700;
+      line-height:1.2;
+      background:linear-gradient(135deg, var(--accent), var(--gold));
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+      margin-bottom:1rem;
+    " th:text="${status ?: '500'}">404</div>
+
+        <h2 style="margin-bottom:0.75rem;"
+            th:text="${status == 404} ? #{error.404.title} : (${status == 403} ? #{error.403.title} : #{error.500.title})">
+            Page Not Found
+        </h2>
+
+        <p style="color:var(--muted); line-height:1.7; margin-bottom:2rem;"
+           th:text="${status == 404} ? #{error.404.message} : (${status == 403} ? #{error.403.message} : #{error.500.message})">
+            The page you're looking for doesn't exist or has been moved.
+        </p>
+
+        <div style="display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap;">
+            <a th:href="@{/}" class="btn btn-primary" th:text="#{error.btn.home}">← Back to Home</a>
+            <a th:href="@{/books}" class="btn btn-outline" th:text="#{error.btn.browse}">Browse Books</a>
+        </div>
+
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>
