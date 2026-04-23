@@ -1,5 +1,22 @@
 package com.epam.rd.autocode.spring.project.repo;
 
-public interface BookRepository{
-    // TODO Place your code here
+import com.epam.rd.autocode.spring.project.model.Book;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+
+@Repository
+public interface BookRepository extends JpaRepository<Book, Long> {
+    Optional<Book> findByName(String name);
+    void deleteByName(String name);
+
+    @Query("""
+        SELECT b FROM Book b WHERE LOWER(b.name) LIKE %:search%
+        OR LOWER(b.author) LIKE %:search% OR LOWER(b.genre) LIKE %:search%
+        """)
+    Page<Book> findAllBySearch(String search, Pageable pageable);
 }
