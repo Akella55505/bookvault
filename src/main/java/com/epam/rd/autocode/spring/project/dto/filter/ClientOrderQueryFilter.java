@@ -1,15 +1,13 @@
 package com.epam.rd.autocode.spring.project.dto.filter;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.domain.Sort;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class ClientOrderQueryFilter extends QueryFilter {
     private Sort.Direction sortDirection = Sort.Direction.DESC;
 }

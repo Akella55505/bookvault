@@ -7,6 +7,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class BookQueryFilter extends QueryFilter {
     private String search = "";
     private BookSortByOptions sortBy = BookSortByOptions.NAME;

@@ -13,6 +13,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
+@ToString
 public class BookDTO {
     @NotBlank(message = "{book.validation.name.blank}")
     private String name;

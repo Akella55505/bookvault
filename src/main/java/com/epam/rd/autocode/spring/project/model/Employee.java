@@ -18,6 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder(toBuilder = true)
+@ToString
 public class Employee extends User {
     private String phone;
     private LocalDate birthDate;

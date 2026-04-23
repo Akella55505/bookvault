@@ -1,9 +1,6 @@
 package com.epam.rd.autocode.spring.project.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 
@@ -11,6 +8,7 @@ import java.math.BigDecimal;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class ClientDTO extends UserDTO {
     private BigDecimal balance;
     private Boolean active;

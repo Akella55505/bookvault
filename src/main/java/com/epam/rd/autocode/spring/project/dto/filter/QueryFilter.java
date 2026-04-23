@@ -7,6 +7,7 @@ import org.springframework.data.domain.Sort;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public abstract class QueryFilter {
     private int page = 0;
     private int itemsPerPage = 5;
