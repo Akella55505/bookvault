@@ -19,7 +19,6 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder(toBuilder = true)
-@ToString
 public class Client extends User {
     @Column(nullable = false)
     @Builder.Default

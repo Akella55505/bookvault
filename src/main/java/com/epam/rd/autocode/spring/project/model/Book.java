@@ -4,9 +4,12 @@ import com.epam.rd.autocode.spring.project.model.enums.AgeGroup;
 import com.epam.rd.autocode.spring.project.model.enums.Language;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -37,6 +40,9 @@ public class Book {
     private String description;
     @Enumerated(EnumType.STRING)
     private Language language;
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @ManyToMany(mappedBy = "booksInBasket")
     private Set<Client> clients;
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BookItem> bookItems;
 }
