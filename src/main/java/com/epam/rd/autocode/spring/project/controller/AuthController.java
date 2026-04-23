@@ -1,6 +1,6 @@
 package com.epam.rd.autocode.spring.project.controller;
 
-import com.epam.rd.autocode.spring.project.dto.ClientDTO;
+import com.epam.rd.autocode.spring.project.dto.RegistrationRequestDTO;
 import com.epam.rd.autocode.spring.project.model.RefreshToken;
 import com.epam.rd.autocode.spring.project.model.User;
 import com.epam.rd.autocode.spring.project.service.*;
@@ -86,7 +86,7 @@ public class AuthController {
 
     @GetMapping("/register")
     public ModelAndView registerPage(@RequestParam(required = false) String returnUrl,
-                                     @ModelAttribute ClientDTO clientDTO) {
+                                     @ModelAttribute RegistrationRequestDTO registrationRequestDTO) {
         ModelAndView mav = new ModelAndView("auth/register");
 
         mav.addObject("returnUrl", returnUrl);
@@ -96,7 +96,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ModelAndView register(@RequestParam(required = false) String returnUrl,
-                                 @Valid @ModelAttribute ClientDTO clientDTO,
+                                 @Valid @ModelAttribute RegistrationRequestDTO registrationRequestDTO,
                                  BindingResult bindingResult,
                                  HttpServletResponse response) {
         ModelAndView mav = new ModelAndView("redirect:" + (returnUrl == null ? "/" : returnUrl));
@@ -107,7 +107,7 @@ public class AuthController {
             return mav;
         }
 
-        String jwt = authService.register(clientDTO);
+        String jwt = authService.register(registrationRequestDTO);
         response.addCookie(jwtService.createCookie(jwt));
 
         return mav;

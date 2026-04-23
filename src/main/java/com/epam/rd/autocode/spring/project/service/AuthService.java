@@ -1,6 +1,7 @@
 package com.epam.rd.autocode.spring.project.service;
 
 import com.epam.rd.autocode.spring.project.dto.ClientDTO;
+import com.epam.rd.autocode.spring.project.dto.RegistrationRequestDTO;
 import com.epam.rd.autocode.spring.project.model.Client;
 import com.epam.rd.autocode.spring.project.model.User;
 import com.epam.rd.autocode.spring.project.repo.ClientRepository;
@@ -25,11 +26,11 @@ public class AuthService {
         return jwtService.generateToken(user);
     }
 
-    public String register(ClientDTO clientDTO) {
+    public String register(RegistrationRequestDTO registrationRequestDTO) {
         Client client = clientRepository.save(Client.builder()
-                .name(clientDTO.getName())
-                .email(clientDTO.getEmail())
-                .password(passwordEncoder.encode(clientDTO.getPassword()))
+                .name(registrationRequestDTO.getName())
+                .email(registrationRequestDTO.getEmail())
+                .password(passwordEncoder.encode(registrationRequestDTO.getPassword()))
                 .build());
         return jwtService.generateToken(client);
     }

@@ -43,7 +43,7 @@
                 <span>✕</span> <span th:text="${errorMessage}">Registration failed.</span>
             </div>
 
-            <form th:action="@{/auth/register}" th:object="${clientDTO}" method="post">
+            <form th:action="@{/auth/register}" th:object="${registrationRequestDTO}" method="post">
                 <input type="hidden" name="returnUrl" th:value="${returnUrl}">
 
                 <div class="form-group">

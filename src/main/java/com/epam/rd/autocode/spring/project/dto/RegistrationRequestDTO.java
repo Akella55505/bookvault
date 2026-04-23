@@ -15,10 +15,17 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDTO {
+public class RegistrationRequestDTO {
     @NotBlank(message = "{user.validation.email.blank}")
     @Email(message = "{user.validation.email.format}")
     @UniqueEmail
     private String email;
+    @NotBlank(message = "{client.validation.password.blank}")
+    @Size(min = 8, message = "{client.validation.password.size}")
+    @Pattern(
+            regexp = PasswordService.PASSWORD_REGEX,
+            message = "{auth.register.fail.password}"
+    )
+    private String password;
     private String name;
 }
