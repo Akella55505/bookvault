@@ -61,7 +61,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exceptions -> exceptions
-                        .authenticationEntryPoint(jwtAuthenticationEntryPoint())
+                        .authenticationEntryPoint(authenticationEntryPoint())
                         .accessDeniedHandler(accessDeniedHandler()))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
@@ -104,7 +104,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationEntryPoint jwtAuthenticationEntryPoint() {
+    public AuthenticationEntryPoint authenticationEntryPoint() {
         return (request, response, authException) ->
                 response.sendRedirect("/auth/login");
     }
