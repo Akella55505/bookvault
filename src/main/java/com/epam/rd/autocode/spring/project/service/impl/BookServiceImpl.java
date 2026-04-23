@@ -7,6 +7,7 @@ import com.epam.rd.autocode.spring.project.repo.BookRepository;
 import com.epam.rd.autocode.spring.project.service.BookService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
@@ -48,6 +50,8 @@ public class BookServiceImpl implements BookService {
         modelMapper.map(bookDTO, book);
         book = bookRepository.save(book);
 
+        log.info("Book {} has been edited - {}", name, bookDTO);
+
         return modelMapper.map(book, BookDTO.class);
     }
 
@@ -55,6 +59,7 @@ public class BookServiceImpl implements BookService {
     @Transactional
     public void deleteBookByName(String name) {
         bookRepository.deleteByName(name);
+        log.info("Book {} has been deleted", name);
     }
 
     @Override
@@ -63,6 +68,8 @@ public class BookServiceImpl implements BookService {
 
         modelMapper.map(bookDTO, book);
         book = bookRepository.save(book);
+
+        log.info("Book has been added - {}", bookDTO);
 
         return modelMapper.map(book, BookDTO.class);
     }

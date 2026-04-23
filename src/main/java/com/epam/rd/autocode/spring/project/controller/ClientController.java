@@ -7,7 +7,6 @@ import com.epam.rd.autocode.spring.project.model.User;
 import com.epam.rd.autocode.spring.project.service.OrderService;
 import com.epam.rd.autocode.spring.project.service.impl.ClientServiceImpl;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -19,7 +18,6 @@ import org.springframework.web.servlet.ModelAndView;
 import java.math.BigDecimal;
 import java.util.Set;
 
-@Slf4j
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/client")
@@ -60,8 +58,6 @@ public class ClientController {
     @PostMapping("/balance/deposit")
     public String deposit(@AuthenticationPrincipal User user, BigDecimal deposit) {
         clientService.depositById(user.getId(), deposit);
-
-        log.info("User {} just made a deposit of amount {}", user.getEmail(), deposit);
 
         return "redirect:/profile";
     }

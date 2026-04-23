@@ -7,7 +7,6 @@ import com.epam.rd.autocode.spring.project.service.*;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -18,7 +17,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.Locale;
 
-@Slf4j
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/auth")
@@ -73,13 +71,9 @@ public class AuthController {
         bruteForceProtectionService.loginSucceeded(email);
 
         if (rememberMe) {
-            log.debug("User {} picked \"Remember me\"", email);
-
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(email);
             response.addCookie(refreshTokenService.createCookie(refreshToken));
         }
-
-        log.info("Successful login by: {}", email);
 
         return mav;
     }
@@ -123,8 +117,6 @@ public class AuthController {
         ModelAndView mav = new ModelAndView("auth/forgot-password");
 
         if (userService.checkUserExistsByEmail(email)) {
-            log.debug("User {} initiated \"Forgot password\" procedure", email);
-
             String subject = messageSource.getMessage("forgot.email.subject", null, locale);
             String text= messageSource.getMessage("forgot.email.text", null, locale);
             String link = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUri() +
@@ -173,8 +165,6 @@ public class AuthController {
             mav.addObject("token", token);
             return mav;
         }
-
-        log.debug("User {} initiated \"Reset password\" procedure", user.getEmail());
 
         if (!newPassword.matches(PasswordService.PASSWORD_REGEX)) {
             String errorMessage = messageSource.getMessage("password.fail.noRequirements", null, locale);

@@ -17,6 +17,7 @@ public class BruteForceProtectionService {
     private final Map<String, Long> lockCache = new ConcurrentHashMap<>();
 
     public void loginSucceeded(String key) {
+        log.info("Successful login by: {}", key);
         attemptsCache.remove(key);
         lockCache.remove(key);
     }

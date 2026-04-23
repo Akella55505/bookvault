@@ -3,12 +3,10 @@ package com.epam.rd.autocode.spring.project.controller;
 import com.epam.rd.autocode.spring.project.dto.BookItemDTO;
 import com.epam.rd.autocode.spring.project.dto.OrderDTO;
 import com.epam.rd.autocode.spring.project.model.User;
-import com.epam.rd.autocode.spring.project.service.OrderService;
 import com.epam.rd.autocode.spring.project.service.impl.OrderServiceImpl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -17,7 +15,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
 
-@Slf4j
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/orders")
@@ -51,8 +48,6 @@ public class OrderController {
             return mav;
         }
 
-        log.info("User {} has placed an order", user.getEmail());
-
         return mav;
     }
 
@@ -62,9 +57,6 @@ public class OrderController {
                                @RequestParam(defaultValue = "") String queryString,
                                @AuthenticationPrincipal User user) {
         orderService.confirmOrderById(id, user.getId());
-
-        log.info("Order with ID {} has been confirmed by {}", id, user.getEmail());
-
         return "redirect:/employee/orders" + (queryString.isBlank() ?  "" : "?" + queryString);
     }
 
@@ -73,9 +65,6 @@ public class OrderController {
     public String confirmOrder(@RequestParam Long id,
                                @RequestParam(defaultValue = "") String queryString) {
         orderService.deleteOrderById(id);
-
-        log.info("Order with ID {} has been deleted", id);
-
         return "redirect:/employee/orders" + (queryString.isBlank() ?  "" : "?" + queryString);
     }
 }

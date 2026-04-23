@@ -7,7 +7,6 @@ import com.epam.rd.autocode.spring.project.service.impl.BookServiceImpl;
 import com.epam.rd.autocode.spring.project.service.impl.ClientServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -18,7 +17,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-@Slf4j
 @Controller
 @RequestMapping("/books")
 @RequiredArgsConstructor
@@ -68,8 +66,6 @@ public class BookController {
 
         bookService.addBook(bookDTO);
 
-        log.info("Book {} has been added", bookDTO.getName());
-
         return "redirect:/books/" + bookDTO.getName();
     }
 
@@ -92,8 +88,6 @@ public class BookController {
 
         bookService.updateBookByName(name, bookDTO);
 
-        log.info("Book {} has been edited", bookDTO.getName());
-
         return "redirect:/books/" + name;
     }
 
@@ -102,8 +96,6 @@ public class BookController {
     public String deleteBook(@PathVariable String name,
                              @RequestParam(defaultValue = "") String queryString) {
         bookService.deleteBookByName(name);
-
-        log.info("Book {} has been deleted", name);
 
         return "redirect:/books" + (queryString.isBlank() ?  "" : "?" + queryString);
     }

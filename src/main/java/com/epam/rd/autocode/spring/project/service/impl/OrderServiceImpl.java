@@ -14,6 +14,7 @@ import com.epam.rd.autocode.spring.project.repo.OrderRepository;
 import com.epam.rd.autocode.spring.project.service.OrderService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -24,6 +25,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
@@ -96,12 +98,15 @@ public class OrderServiceImpl implements OrderService {
         clientRepository.save(client);
         clientRepository.clearBasketByClientId(clientId);
 
+        log.info("User {} has placed an order", client.getEmail());
+
         return modelMapper.map(order, OrderDTO.class);
     }
 
     @Transactional
     public void confirmOrderById(Long orderId, Long employeeId) {
         orderRepository.updateEmployeeEmailById(orderId, employeeId);
+        log.info("Order with ID {} has been confirmed", orderId);
     }
 
     @Transactional
@@ -110,6 +115,8 @@ public class OrderServiceImpl implements OrderService {
         Client client = order.getClient();
         client.setBalance(client.getBalance().add(order.getPrice()));
         orderRepository.deleteById(id);
+
+        log.info("Order with ID {} has been deleted", id);
     }
 
     public OrderDTO getOrderById(Long id) {

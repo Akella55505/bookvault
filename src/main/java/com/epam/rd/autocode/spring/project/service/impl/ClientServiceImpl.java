@@ -11,6 +11,7 @@ import com.epam.rd.autocode.spring.project.repo.ClientRepository;
 import com.epam.rd.autocode.spring.project.service.ClientService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ClientServiceImpl implements ClientService {
@@ -111,6 +113,8 @@ public class ClientServiceImpl implements ClientService {
         Client client = clientRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Client not found"));
         client.setActive(!client.getActive());
         clientRepository.save(client);
+
+        log.info("Client {} has been toggled", email);
     }
 
     public Page<ClientDTO> getAllClientsBySearch(String search, Pageable pageable) {
