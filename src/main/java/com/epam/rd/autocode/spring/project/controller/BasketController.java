@@ -21,7 +21,7 @@ public class BasketController {
                                   @AuthenticationPrincipal User user,
                                   @RequestParam String bookName) {
         clientService.addBookToBasket(user.getId(), bookName);
-        return "redirect:" + ((returnUrl == null || returnUrl.isBlank()) ? "/" : returnUrl);
+        return "redirect:" + (returnUrl == null ? "/" : returnUrl);
     }
 
     @PostMapping("/remove")
