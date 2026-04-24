@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.epam.rd.autocode.spring.project</groupId>
     <artifactId>book-store-service</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>book-store-service-solution</name>
     <description>Demo project for Spring Boot</description>
     <properties>
