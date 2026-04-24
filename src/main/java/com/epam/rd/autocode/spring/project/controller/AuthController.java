@@ -49,7 +49,7 @@ public class AuthController {
                         @RequestParam String password,
                         @RequestParam(defaultValue = "false") Boolean rememberMe,
                         HttpServletResponse response) {
-        ModelAndView mav = new ModelAndView("redirect:" + ((returnUrl == null || returnUrl.isBlank()) ? "/" : returnUrl));
+        ModelAndView mav = new ModelAndView("redirect:" + (returnUrl == null ? "/" : returnUrl));
         String jwt;
 
         if (bruteForceProtectionService.isBlocked(email)) {
