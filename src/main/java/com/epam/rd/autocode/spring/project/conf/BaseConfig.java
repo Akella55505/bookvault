@@ -4,6 +4,7 @@ import com.epam.rd.autocode.spring.project.converter.StringToEnumConverterFactor
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -20,6 +21,7 @@ public class BaseConfig implements WebMvcConfigurer {
         return new ModelMapper();
     }
 
+    @Profile("!test")
     @Bean
     public LocaleResolver localeResolver() {
         CookieLocaleResolver resolver = new CookieLocaleResolver();
@@ -27,6 +29,7 @@ public class BaseConfig implements WebMvcConfigurer {
         return resolver;
     }
 
+    @Profile("!test")
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         LocaleChangeInterceptor interceptor = new LocaleChangeInterceptor();

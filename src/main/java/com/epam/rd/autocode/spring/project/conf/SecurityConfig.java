@@ -7,6 +7,7 @@ import jakarta.servlet.RequestDispatcher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -34,6 +35,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
+@Profile("!test")
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
