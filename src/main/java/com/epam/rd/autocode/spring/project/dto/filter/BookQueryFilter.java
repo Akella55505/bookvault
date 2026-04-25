@@ -8,6 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@EqualsAndHashCode(callSuper = true)
 public class BookQueryFilter extends QueryFilter {
     private String search = "";
     private BookSortByOptions sortBy = BookSortByOptions.NAME;

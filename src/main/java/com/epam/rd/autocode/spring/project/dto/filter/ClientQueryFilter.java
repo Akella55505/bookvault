@@ -8,6 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@EqualsAndHashCode(callSuper = true)
 public class ClientQueryFilter extends QueryFilter {
     private String search = "";
     private ClientSortByOptions sortBy = ClientSortByOptions.NAME;

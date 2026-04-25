@@ -8,6 +8,7 @@ import org.springframework.data.domain.Sort;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@EqualsAndHashCode(callSuper = true)
 public class EmployeeOrderQueryFilter extends QueryFilter {
     private String search = "";
     private Sort.Direction sortDirection = Sort.Direction.DESC;

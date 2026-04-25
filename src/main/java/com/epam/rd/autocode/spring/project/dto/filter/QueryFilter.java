@@ -8,6 +8,7 @@ import org.springframework.data.domain.Sort;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@EqualsAndHashCode
 public abstract class QueryFilter {
     private int page = 0;
     private int itemsPerPage = 5;
