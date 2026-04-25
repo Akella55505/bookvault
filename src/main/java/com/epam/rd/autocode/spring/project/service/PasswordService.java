@@ -14,8 +14,9 @@ import java.util.Optional;
 public class PasswordService {
     private final PasswordChangeTokenRepository passwordChangeTokenRepository;
     private final PasswordEncoder passwordEncoder;
-    public static final String PASSWORD_REGEX = "^(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}$";
     private final JwtService jwtService;
+
+    public static final String PASSWORD_REGEX = "^(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}$";
 
     public Boolean checkPassword(String rawPassword, String encodedPassword) {
         return passwordEncoder.matches(rawPassword, encodedPassword);
