@@ -156,14 +156,12 @@ public class UserServiceTest {
         @Test
         @DisplayName("throws exception when user is of unknown role")
         void throwsException() {
-            assertThrows(UnknownUserRoleException.class, () -> {
-                userService.updateUser(new User() {
-                    @Override
-                    public Collection<? extends GrantedAuthority> getAuthorities() {
-                        return List.of(new SimpleGrantedAuthority("ROLE_UNKNOWN"));
-                    }
-                }, new UserDTO());
-            });
+            assertThrows(UnknownUserRoleException.class, () -> userService.updateUser(new User() {
+                @Override
+                public Collection<? extends GrantedAuthority> getAuthorities() {
+                    return List.of(new SimpleGrantedAuthority("ROLE_UNKNOWN"));
+                }
+            }, new UserDTO()));
         }
     }
 
