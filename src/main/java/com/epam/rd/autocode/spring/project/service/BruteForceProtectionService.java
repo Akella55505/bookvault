@@ -45,4 +45,8 @@ public class BruteForceProtectionService {
 
         return true;
     }
+
+    public int getMaxAttempts() {
+        return MAX_ATTEMPTS;
+    }
 }
