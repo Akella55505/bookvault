@@ -42,32 +42,31 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public User updateUser(User user, UserDTO userDTO) {
-        if (getRole(user) == Role.CLIENT) {
+        Role role = getRole(user);
+
+        if (role == Role.CLIENT) {
             Client client = clientRepository.findById(user.getId()).orElseThrow(() -> new UsernameNotFoundException("User not found"));
             if (!userDTO.getEmail().isBlank()) client.setEmail(userDTO.getEmail());
             if (!userDTO.getName().isBlank()) client.setName(userDTO.getName());
             user = clientRepository.save(client);
-        } else if (getRole(user) == Role.EMPLOYEE) {
+        } else if (role == Role.EMPLOYEE) {
             Employee employee = employeeRepository.findById(user.getId()).orElseThrow(() -> new UsernameNotFoundException("User not found"));
             if (!userDTO.getEmail().isBlank()) employee.setEmail(userDTO.getEmail());
             if (!userDTO.getName().isBlank()) employee.setName(userDTO.getName());
             user = employeeRepository.save(employee);
-        } else {
-            throw new UnknownUserRoleException("No existing role matches current user");
         }
 
         return user;
     }
 
     public UserDTO mapUserToDTO(User user) {
-        UserDTO userDTO;
+        UserDTO userDTO = null;
+        Role role = getRole(user);
 
-        if (getRole(user) == Role.CLIENT) {
+        if (role == Role.CLIENT) {
             userDTO = modelMapper.map(user, ClientDTO.class);
-        } else if (getRole(user) == Role.EMPLOYEE) {
+        } else if (role == Role.EMPLOYEE) {
             userDTO = modelMapper.map(user, EmployeeDTO.class);
-        } else {
-            throw new UnknownUserRoleException("No existing role matches current user");
         }
 
         return userDTO;
@@ -92,13 +91,12 @@ public class UserService implements UserDetailsService {
     @Transactional
     public void updatePassword(User user, String newPassword) {
         Long userId = user.getId();
+        Role role = getRole(user);
 
-        if (getRole(user) == Role.CLIENT) {
+        if (role == Role.CLIENT) {
             clientRepository.updatePasswordById(userId, newPassword);
-        } else if (getRole(user) == Role.EMPLOYEE) {
+        } else if (role == Role.EMPLOYEE) {
             employeeRepository.updatePasswordById(userId, newPassword);
-        } else {
-            throw new UnknownUserRoleException("No existing role matches current user");
         }
     }
 
@@ -106,13 +104,12 @@ public class UserService implements UserDetailsService {
     public void updatePasswordByToken(User user, String token) {
         PasswordChangeToken changeToken = passwordChangeTokenRepository.findByToken(token).orElseThrow(() -> new NotFoundException("Token not found"));
         Long userId = user.getId();
+        Role role = getRole(user);
 
-        if (getRole(user) == Role.CLIENT) {
+        if (role == Role.CLIENT) {
             clientRepository.updatePasswordById(userId, changeToken.getNewPassword());
-        } else if (getRole(user) == Role.EMPLOYEE) {
+        } else if (role == Role.EMPLOYEE) {
             employeeRepository.updatePasswordById(userId, changeToken.getNewPassword());
-        } else {
-            throw new UnknownUserRoleException("No existing role matches current user");
         }
 
         passwordChangeTokenRepository.delete(changeToken);
