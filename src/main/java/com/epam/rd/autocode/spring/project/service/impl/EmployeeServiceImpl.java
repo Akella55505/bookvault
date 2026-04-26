@@ -32,9 +32,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     @Transactional
-    public EmployeeDTO updateEmployeeByEmail(String email, EmployeeDTO employeeDto) {
+    public EmployeeDTO updateEmployeeByEmail(String email, EmployeeDTO employeeDTO) {
         Employee employee = employeeRepository.findByEmail(email);
-        modelMapper.map(employee, employeeDto);
+        modelMapper.map(employee, employeeDTO);
         employee = employeeRepository.save(employee);
         return modelMapper.map(employee, EmployeeDTO.class);
     }
@@ -45,10 +45,10 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public EmployeeDTO addEmployee(EmployeeDTO employeeDto) {
+    public EmployeeDTO addEmployee(EmployeeDTO employeeDTO) {
         Employee employee = new Employee();
 
-        modelMapper.map(employeeDto, employee);
+        modelMapper.map(employeeDTO, employee);
         employee = employeeRepository.save(employee);
 
         return modelMapper.map(employee, EmployeeDTO.class);

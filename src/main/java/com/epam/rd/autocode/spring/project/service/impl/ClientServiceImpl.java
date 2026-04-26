@@ -45,9 +45,9 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public ClientDTO updateClientByEmail(String email, ClientDTO clientDto) {
+    public ClientDTO updateClientByEmail(String email, ClientDTO clientDTO) {
         Client client = clientRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Client not found"));
-        modelMapper.map(client, clientDto);
+        modelMapper.map(client, clientDTO);
         client = clientRepository.save(client);
         return modelMapper.map(client, ClientDTO.class);
     }
@@ -59,10 +59,10 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public ClientDTO addClient(ClientDTO clientDto) {
+    public ClientDTO addClient(ClientDTO clientDTO) {
         Client client = new Client();
 
-        modelMapper.map(clientDto, client);
+        modelMapper.map(clientDTO, client);
         client = clientRepository.save(client);
 
         return modelMapper.map(client, ClientDTO.class);
