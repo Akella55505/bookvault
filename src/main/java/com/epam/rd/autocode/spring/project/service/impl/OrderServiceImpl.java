@@ -19,6 +19,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -80,11 +81,7 @@ public class OrderServiceImpl implements OrderService {
                 .build()).collect(Collectors.toList());
         bookItemRepository.saveAll(bookItems);
 
-        BigDecimal totalPrice = BigDecimal.ZERO;
-        for (BookItem bookItem : bookItems) {
-            totalPrice = totalPrice.add(bookItem.getBook().getPrice()
-                    .multiply(BigDecimal.valueOf(bookItem.getQuantity())));
-        }
+        BigDecimal totalPrice = calculatePrice(bookItems);
 
         if (totalPrice.compareTo(client.getBalance()) > 0) {
             throw new NotEnoughMoneyException("Not enough money for the operation");
@@ -101,6 +98,17 @@ public class OrderServiceImpl implements OrderService {
         log.info("User {} has placed an order", client.getEmail());
 
         return modelMapper.map(order, OrderDTO.class);
+    }
+
+    @NonNull
+    private static BigDecimal calculatePrice(List<BookItem> bookItems) {
+        BigDecimal totalPrice = BigDecimal.ZERO;
+        for (BookItem bookItem : bookItems) {
+            totalPrice = totalPrice.add(bookItem.getBook().getPrice()
+                    .multiply(BigDecimal.valueOf(bookItem.getQuantity())));
+        }
+
+        return totalPrice;
     }
 
     @Transactional

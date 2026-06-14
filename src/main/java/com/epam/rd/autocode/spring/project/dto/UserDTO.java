@@ -1,11 +1,8 @@
 package com.epam.rd.autocode.spring.project.dto;
 
-import com.epam.rd.autocode.spring.project.service.PasswordService;
 import com.epam.rd.autocode.spring.project.validation.UniqueEmail;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import lombok.*;
 
 @Getter

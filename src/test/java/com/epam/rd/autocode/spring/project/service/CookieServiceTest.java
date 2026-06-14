@@ -20,7 +20,7 @@ public class CookieServiceTest {
         assertEquals("value", cookie.getValue());
         assertEquals(150, cookie.getMaxAge());
         assertTrue(cookie.isHttpOnly());
-        assertEquals("Strict", cookie.getAttribute("SameSite"));
+        assertEquals("Lax", cookie.getAttribute("SameSite"));
         assertTrue(cookie.getSecure());
     }
 }

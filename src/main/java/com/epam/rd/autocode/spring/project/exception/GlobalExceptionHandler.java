@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import java.util.Arrays;
-
 @ControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
